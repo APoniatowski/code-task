@@ -1,0 +1,49 @@
+version: "3"
+
+services:
+  db:
+    image: postgres:latest
+    container_name: postgresdb
+    restart: always
+    environment:
+      - POSTGRES_USER=
+      - POSTGRES_PASSWORD=
+      - POSTGRES_DB=
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    networks:
+      - db-network
+
+  api:
+    build: .
+    #labels:
+    # - "traefik.enable=true"
+    # - "traefik.http.routers.scm.rule=Host(`task.poniatowski.dev`)"
+    # - "traefik.http.routers.scm.entrypoints=websecure"
+    # - "traefik.http.routers.scm.tls.certresolver=letsencrypt"
+    # - "traefik.http.services.scm.loadbalancer.server.port=8080"
+    # - "traefik.docker.network=proxy"
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=postgresdb
+      - DB_PORT=5432
+      - DB_NAME=your_db_name
+      - DB_USER=your_db_user
+      - DB_PASSWORD=your_db_password
+    networks:
+      - db-network
+      #- proxy
+
+networks:
+  #proxy:
+  # name: proxy
+  # external: true
+  db-network:
+    driver: bridge
+    external: false
