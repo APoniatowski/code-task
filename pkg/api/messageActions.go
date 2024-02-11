@@ -10,7 +10,7 @@ import (
 )
 
 func (a *App) getMessages(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Incoming GET (getMessages) request from ", r.Header.Get("X-Real-IP"))
+	fmt.Println("Incoming GET (getMessages) request from ", r.RemoteAddr)
 	rows, err := a.DB.Query("SELECT id, email, title, content, mailing_id, insert_time FROM messages")
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
@@ -37,7 +37,7 @@ func (a *App) getMessages(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) createMessage(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Incoming POST (createMessage) request from ", r.Header.Get("X-Real-IP"))
+	fmt.Println("Incoming POST (createMessage) request from ", r.RemoteAddr)
 	var msg Message
 	err := json.NewDecoder(r.Body).Decode(&msg)
 	if err != nil {
@@ -58,10 +58,13 @@ func (a *App) createMessage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) sendMessage(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Incoming POST (sendMessage) request from ", r.Header.Get("X-Real-IP"))
+	fmt.Println("Incoming POST (sendMessage) request from ", r.RemoteAddr)
+	params := mux.Vars(r)
+	id := params["id"]
+
 	// TODO: Send message (mocked)
 
-	_, err := a.DB.Exec("DELETE FROM messages WHERE mailing_id = $1", 1) // Mocked mailing_id
+	_, err := a.DB.Exec("DELETE FROM messages WHERE mailing_id = $1", id)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -71,7 +74,7 @@ func (a *App) sendMessage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) deleteMessage(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Incoming DELETE (deleteMessage) request from ", r.Header.Get("X-Real-IP"))
+	fmt.Println("Incoming DELETE (deleteMessage) request from ", r.RemoteAddr)
 	params := mux.Vars(r)
 	id := params["id"]
 

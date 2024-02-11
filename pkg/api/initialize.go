@@ -60,7 +60,7 @@ func (a *App) createTables() error {
             title TEXT NOT NULL,
             content TEXT NOT NULL,
             mailing_id INT NOT NULL,
-            insert_time TIMESTAMP NOT NULL
+            insert_time TIMESTAMP WITH TIME ZONE NOT NULL
         );
     `)
 	if err != nil {
