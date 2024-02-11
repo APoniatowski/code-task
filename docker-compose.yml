@@ -4,11 +4,8 @@ services:
   db:
     image: postgres:latest
     container_name: postgresdb
+    env_file: ./code-task.env
     restart: always
-    environment:
-      - POSTGRES_USER=
-      - POSTGRES_PASSWORD=
-      - POSTGRES_DB=
     ports:
       - "5432:5432"
     volumes:
@@ -17,7 +14,9 @@ services:
       - db-network
 
   api:
-    build: .
+    image: zehd/task:latest
+    #build: .
+    env_file: ./code-task.env
     #labels:
     # - "traefik.enable=true"
     # - "traefik.http.routers.scm.rule=Host(`task.poniatowski.dev`)"
@@ -30,12 +29,6 @@ services:
       - "8080:8080"
     depends_on:
       - db
-    environment:
-      - DB_HOST=postgresdb
-      - DB_PORT=5432
-      - DB_NAME=your_db_name
-      - DB_USER=your_db_user
-      - DB_PASSWORD=your_db_password
     networks:
       - db-network
       #- proxy

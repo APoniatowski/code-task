@@ -8,6 +8,7 @@ import (
 )
 
 type Message struct {
+	ID         int       `json:"id"`
 	Email      string    `json:"email"`
 	Title      string    `json:"title"`
 	Content    string    `json:"content"`

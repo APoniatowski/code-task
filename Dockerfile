@@ -1,20 +1,31 @@
 # Builder
-FROM golang:1.22 as builder
+FROM golang:alpine as builder
 
-WORKDIR /app
+ARG VERSION
 
-COPY go.mod ./
-COPY go.sum ./
-RUN go mod download
+WORKDIR /go/src/app
 
-COPY . ./
+COPY . .
 
-RUN go build -o main .
+RUN mkdir -p /go/bin/
+
+RUN go mod tidy
+RUN go get -d -v ./...
+RUN go build -o /go/bin/task -v ./cmd/code-task/code-task.go
 
 
 # Actual image
 FROM alpine:latest
 
-COPY --from=builder /app/main /app/main
+COPY --from=builder /go/bin/task /task
 
-CMD ["/app/main"]
+ENV HOSTNAME=$HOSTNAME
+ENV POSTGRES_USER=$POSTGRES_USER
+ENV POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+ENV POSTGRES_DB=$POSTGRES_DB
+
+ARG VERSION
+LABEL Name=code-task Version=VERSION
+
+ENTRYPOINT ["/task"]
+EXPOSE 8080
