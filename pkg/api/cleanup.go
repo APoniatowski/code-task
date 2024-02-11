@@ -17,12 +17,13 @@ func CleanupOldEntries(db *sql.DB) {
 			log.Println("Error getting old customer entries:", err)
 		}
 		if len(oldMessages) > 0 {
+			fmt.Printf("Found %d entries older than 5 minutes...\n", len(oldMessages))
+			log.Println("Running cleanup...")
 			_, err := db.Exec("DELETE FROM messages WHERE insert_time < NOW() - INTERVAL '5 minutes';")
 			if err != nil {
 				log.Println("Error deleting old customer entries:", err)
 			}
-			log.Println("Running cleanup...")
-
+			fmt.Printf("Deleted %d entries.\n", len(oldMessages))
 		}
 		time.Sleep(1 * time.Minute)
 	}
